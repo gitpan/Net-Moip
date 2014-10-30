@@ -1,4 +1,7 @@
 Revision history for Net-Moip
 
+0.02    2014-10-30
+    - tratamento correto de url_notificacao e url_retorno
+
 0.01    2014-10-29
-    Initial release.
+    - Initial release.

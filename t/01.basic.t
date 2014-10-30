@@ -27,8 +27,14 @@ sub post {
     Test::More::ok index($content, "<InstrucaoUnica TipoValidacao='Transparente'>") > 0,
     'found TipoValidacao attribute';
 
-    Test::More::ok index($content, "<CEP>22222-222</CEP>") > 0,
+    Test::More::ok index($content, '<CEP>22222-222</CEP>') > 0,
     'found CEP data with proper case';
+
+    Test::More::ok index($content, '<URLNotificacao>http://example.com</URLNotificacao>') > 0,
+    'found URLNotificacao with proper case';
+
+    Test::More::ok index($content, '<URLRetorno>http://example.com/return</URLRetorno>') > 0,
+    'found URLRetorno with proper case';
 
     return $self;
 }
@@ -83,6 +89,8 @@ my $res = $moip->pagamento_unico({
     tipo_validacao => 'Transparente',
     valor          => 10.30,
     id_proprio     => 'lala',
+    url_notificacao => 'http://example.com',
+    url_retorno     => 'http://example.com/return',
     pagador => {
         endereco_cobranca => {
             cep => '22222-222',

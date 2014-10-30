@@ -10,7 +10,7 @@ use XML::Generator::PerlData;
 
 use Moo;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 has 'ua', is => 'ro', default => sub {
     Furl->new(
@@ -77,7 +77,12 @@ sub _gen_xml {
     my $generator = XML::Generator::PerlData->new(
         Handler  => XML::SAX::Writer->new(Output => \$xml),
         rootname => 'EnviarInstrucao',
-        keymap   => { '*' => \&String::CamelCase::camelize },
+        keymap   => {
+            '*' => \&String::CamelCase::camelize,
+            'url_notificacao' => 'URLNotificacao',
+            'url_logo'        => 'URLLogo',
+            'url_retorno'     => 'URLRetorno',
+        },
         attrmap  => { InstrucaoUnica => ['TipoValidacao']  },
     );
 
@@ -121,7 +126,81 @@ Net::Moip - Interface com o gateway de pagamentos Moip
         key   => 'MY_MOIP_KEY',
     );
 
-    my $res = $gateway->pagamento_unico({
+    my $resposta = $gateway->pagamento_unico({
+        razao           => 'Pagamento para a Loja X',
+        tipo_validacao  => 'Transparente',
+        valor           => 59.90,
+        id_proprio      => 1,
+        url_retorno     => 'http://exemplo.com/callback',
+        url_notificacao => 'http://exemplo.com/notify',
+        pagador => {
+            id_pagador => 1,
+            nome       => 'Cebolácio Júnior Menezes da Silva',
+            email      => 'cebolinha@exemplo.com',
+            endereco_cobranca => {
+                logradouro    => 'Rua do Campinho',
+                numero        => 9,
+                bairro        => 'Limoeiro',
+                cidade        => 'São Paulo',
+                estado        => 'SP',
+                pais          => 'BRA',
+                cep           => '11111-111',
+                telefone_fixo => '(11)93333-3333',
+            },
+        },
+    });
+
+    if ($resposta->{status} eq 'Sucesso') {
+        print $resposta->{token};
+        print $resposta->{id};
+    }
+
+=head2 Don't speak portuguese?
+
+This module provides an interface to talk to the Moip API. Moip is a
+popular brazilian online payments gateway. Since the target audience
+for this distribution is mainly brazilian developers, the documentation
+is provided in portuguese only. If you need any help or want to translate
+it to your language, please send us some pull requests! :)
+
+=head1 DESCRIÇÃO
+
+Este módulo funciona como interface entre sua aplicação e a API do Moip.
+Por enquanto apenas a versão 1 da API é suportada, e apenas pagamentos
+únicos.
+
+Toda a API de pagamentos únicos é manipulada através de XMLs sem schema,
+mas com estrutura documentada no site do Moip. Com o método
+C<pagamento_unico> deste módulo você tem acesso direto ao endpoint de
+pagamentos únicos do Moip e, enquanto a documentação deste módulo não
+está completa, pode se guiar por lá.
+
+A conversão entre tags XML e a estrutura de dados que você passa é
+direta, exceto pelas tags C<Valor>, C<Acrescimo> e C<Deducao>, que
+por questões práticas podem opcionalmente ficar no nível mais alto
+da estrutura, como mostrado no exemplo da Sinopse.
+
+Outra mudança é que as tags são escritas em I<snake_case> como é
+padrão em Perl, em vez de I<CamelCase> como estão no XML do Moip. Em
+outras palavras, a estrutura:
+
+    <EnderecoCobranca>
+        <Cidade>São Paulo</Cidade>
+        <Estado>SP</Estado>
+    </EnderecoCobranca>
+
+deve ser passada na forma:
+
+    endereco_cobranca => {
+        cidade => 'São Paulo',
+        estado => 'SP',
+    }
+
+=head1 EXEMPLOS
+
+=head2 Pagamentos únicos via checkout transparente
+
+    my $resposta = $gateway->pagamento_unico({
         razao          => 'Pagamento para a Loja X',
         tipo_validacao => 'Transparente',
         valor          => 59.90,
@@ -143,22 +222,7 @@ Net::Moip - Interface com o gateway de pagamentos Moip
         },
     });
 
-    if ($res->{status} eq 'Sucesso') {
-        print $res->{token};
-        print $res->{id};
-    }
 
-=head2 Don't speak portuguese?
-
-This module provides an interface to talk to the Moip API. Moip is a
-popular brazilian online payments gateway. Since the target audience
-for this distribution is mainly brazilian developers, the documentation
-is provided in portuguese only. If you need any help or want to translate
-it to your language, please send us some pull requests! :)
-
-=head1 DESCRIÇÃO
-
-Em breve!
 
 =head1 VEJA TAMBÉM
 
