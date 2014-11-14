@@ -4,7 +4,7 @@
       "Breno G. de Oliveira <garu@cpan.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.142060",
+   "generated_by" : "ExtUtils::MakeMaker version 7.02, CPAN::Meta::Converter version 2.142690",
    "license" : [
       "perl_5"
    ],
@@ -38,8 +38,8 @@
             "Moo" : "0",
             "String::CamelCase" : "0",
             "Test::More" : "0.88",
-            "XML::Generator::PerlData" : "0",
-            "XML::SAX::Writer" : "0",
+            "XML::Generator::PerlData" : "0.93",
+            "XML::SAX::Writer" : "0.56",
             "autovivification" : "0"
          }
       }
@@ -56,5 +56,5 @@
          "url" : "http://github.com/garu/Net-Moip"
       }
    },
-   "version" : "0.02"
+   "version" : 0.03
 }

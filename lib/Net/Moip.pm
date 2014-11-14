@@ -10,7 +10,7 @@ use XML::Generator::PerlData;
 
 use Moo;
 
-our $VERSION = 0.02;
+our $VERSION = 0.03;
 
 has 'ua', is => 'ro', default => sub {
     Furl->new(
@@ -42,6 +42,8 @@ has 'sandbox', (
         );
     }
 );
+
+has 'decode_as', is => 'rw', default => undef;
 
 sub pagamento_unico {
     my ($self, $args) = @_;
@@ -75,7 +77,11 @@ sub _gen_xml {
     my $xml;
 
     my $generator = XML::Generator::PerlData->new(
-        Handler  => XML::SAX::Writer->new(Output => \$xml),
+        Handler  => XML::SAX::Writer->new(
+                        Output     => \$xml,
+                        EncodeFrom => $self->decode_as,
+                        EncodeTo   => 'iso-8859-1'
+                    ),
         rootname => 'EnviarInstrucao',
         keymap   => {
             '*' => \&String::CamelCase::camelize,
@@ -180,6 +186,12 @@ direta, exceto pelas tags C<Valor>, C<Acrescimo> e C<Deducao>, que
 por questões práticas podem opcionalmente ficar no nível mais alto
 da estrutura, como mostrado no exemplo da Sinopse.
 
+O Moip espera que seus dados estejam em I<iso-8859-1>. Este módulo
+fará a coisa certa se seus dados estiverem no formato interno do Perl.
+Se por acaso seus dados já estiverem codificados em I<utf-8> ou
+qualquer outro formato, defina o atributo "L</"decode_as">" para o
+formato desejado.
+
 Outra mudança é que as tags são escritas em I<snake_case> como é
 padrão em Perl, em vez de I<CamelCase> como estão no XML do Moip. Em
 outras palavras, a estrutura:
@@ -222,6 +234,21 @@ deve ser passada na forma:
         },
     });
 
+=head2 decode_as
+
+    my $gateway = Net::Moip->new(
+        token     => '...',
+        key       => '...',
+        decode_as => 'utf-8',
+    );
+
+ou, a qualquer momento:
+
+    $gateway->decode_as( 'utf-8' );
+
+Por padrão, as strings da sua estrutura de dados não são decodificadas.
+Utilize esse atributo para decodificá-las no formato desejado antes de
+recodificá-las em 'iso-8859-1' e enviá-las ao Moip.
 
 
 =head1 VEJA TAMBÉM
